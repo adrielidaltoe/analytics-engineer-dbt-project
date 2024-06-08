@@ -20,5 +20,18 @@ WITH dim_customer AS (
 		attachments,
 		CURRENT_TIMESTAMP AS insertion_timestamp
 	FROM {{ ref('stg_customer') }}
+),
+unique_source AS (
+	SELECT
+		*,
+		ROW_NUMBER() OVER (
+			PARTITION BY customer_id
+		) AS row_number
+	FROM dim_customer
 )
-SELECT * FROM dim_customer
+SELECT *
+EXCEPT
+	(row_number)
+FROM unique_source
+WHERE row_number = 1
+ORDER BY customer_id
