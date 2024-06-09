@@ -1,0 +1,40 @@
+SELECT
+	i.inventory_id,
+	i.transaction_type,
+	i.transaction_created_date,
+	i.transaction_modified_date,
+	i.product_id,
+	i.quantity,
+	i.purchase_order_id,
+	i.customer_order_id,
+	i.comments,
+	p.product_code,
+	p.product_name,
+	p.description AS product_description,
+	p.supplier_company,
+	p.standard_cost AS product_standard_cost,
+	p.list_price AS product_list_price,
+	p.reorder_level AS product_reorder_level,
+	p.target_level AS product_target_level,
+	p.quantity_per_unit AS product_quantity_per_unit,
+	p.discontinued,
+	p.minimum_reorder_quantity AS product_minimum_reorder_quantity,
+	p.category AS product_category,
+	p.attachments AS product_attachments,
+	d.full_date,
+	d.year,
+	d.year_week,
+	d.year_day,
+	d.fiscal_year,
+	d.fiscal_qtr,
+	d.month,
+	d.month_name,
+	d.week_day,
+	d.day_name,
+	d.day_is_weekday,
+	CURRENT_TIMESTAMP() AS insertion_timestamp
+FROM {{ ref('fact_inventory') }} AS i
+LEFT JOIN {{ ref('dim_products') }} AS p
+	ON p.product_id = i.product_id
+LEFT JOIN {{ ref('dim_date') }} AS d
+	ON date(d.date_id) = i.transaction_created_date
